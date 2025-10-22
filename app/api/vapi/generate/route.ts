@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     console.log("🤖 Generating questions with Gemini...");
     
     const { text: questions } = await generateText({
-      model: google("gemini-1.5-flash") as unknown as LanguageModel, // ✅ FIXED: Changed from gemini-2.5-flash
+      model: google("gemini-2.0-flash") as unknown as LanguageModel, // ✅ FIXED: Changed from gemini-2.5-flash
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
