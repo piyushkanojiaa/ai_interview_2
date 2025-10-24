@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -143,65 +144,35 @@ const Agent = ({
   // components/Agent.tsx
 
   const handleCall = async () => {
-      setCallStatus(CallStatus.CONNECTING);
+    setCallStatus(CallStatus.CONNECTING);
 
-      try {
-          console.log("Starting VAPI call for type:", type);
-          
-          let variableValues: Record<string, any> = {};
-          const WORKFLOW_ID = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID; // Check for ID
-
-          if (type === "generate") {
-              // --- FIX 1: Workflow Start ---
-              if (!WORKFLOW_ID) {
-                  console.error("Vapi Workflow ID is missing for 'generate' type.");
-                  setCallStatus(CallStatus.INACTIVE);
-                  return;
-              }
-              
-              variableValues = {
-                  username: userName,
-                  userid: userId,
-              };
-              
-              // Call Vapi with 3x undefined, then the WORKFLOW_ID
-              await vapi.start(
-                  undefined, 
-                  undefined, 
-                  undefined,
-                  WORKFLOW_ID, // <-- Pass the Workflow ID here (4th argument)
-                  { variableValues }
-              );
-              // -----------------------------
-              
-          } else {
-              // --- Normal Interview (Assistant Start) ---
-              let formattedQuestions = "";
-              if (questions) {
-                  formattedQuestions = questions
-                      .map((question) => `- ${question}`)
-                      .join("\n");
-              }
-              variableValues = {
-                  questions: formattedQuestions,
-              };
-              
-              // Call Vapi with the Assistant ID/Object
-              await vapi.start(interviewer, {
-                  variableValues,
-              });
-              // ------------------------------------------
-          }
-          
-          console.log("VAPI variableValues:", variableValues);
-          
-      } catch (error) {
-          console.error("Error starting VAPI call:", {
-              message: error instanceof Error ? error.message : 'Unknown error',
-              error: error,
-          });
-          setCallStatus(CallStatus.INACTIVE);
+    if (type === "generate") {
+      await vapi.start(
+        undefined,
+        undefined,
+        undefined,
+        process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!,
+        {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        }
+      );
+    } else {
+      let formattedQuestions = "";
+      if (questions) {
+        formattedQuestions = questions
+          .map((question) => `- ${question}`)
+          .join("\n");
       }
+
+      await vapi.start(interviewer, {
+        variableValues: {
+          questions: formattedQuestions,
+        },
+      });
+    }
   };
 
   const handleDisconnect = () => {
